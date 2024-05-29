@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using PaginacaoAspNetMVC.Models;
-using System.Diagnostics;
 
 namespace PaginacaoAspNetMVC.Controllers
 {
@@ -23,10 +21,5 @@ namespace PaginacaoAspNetMVC.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
     }
 }
