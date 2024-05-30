@@ -7,12 +7,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PaginacaoAspNetMVC.Data;
 using PaginacaoAspNetMVC.Models;
+using X.PagedList.EF;
 
 namespace PaginacaoAspNetMVC.Controllers
 {
     public class ProdutosController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private const int tamanhoPagina = 3;
 
         public ProdutosController(ApplicationDbContext context)
         {
@@ -20,10 +22,12 @@ namespace PaginacaoAspNetMVC.Controllers
         }
 
         // GET: Produtos
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pagina)
         {
-            var applicationDbContext = _context.Produtos.Include(p => p.Categoria);
-            return View(await applicationDbContext.ToListAsync());
+            //var produtos = _context.Produtos.Include(p => p.Categoria);
+
+            var produtos = await _context.Produtos.Include(p => p.Categoria).ToPagedListAsync(pagina ?? 1, tamanhoPagina);
+            return View(produtos);
         }
 
         // GET: Produtos/Details/5
@@ -48,7 +52,7 @@ namespace PaginacaoAspNetMVC.Controllers
         // GET: Produtos/Create
         public IActionResult Create()
         {
-            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "CategoriaId");
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "Nome");
             return View();
         }
 
@@ -65,7 +69,7 @@ namespace PaginacaoAspNetMVC.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "CategoriaId", produto.CategoriaId);
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "Nome", produto.CategoriaId);
             return View(produto);
         }
 

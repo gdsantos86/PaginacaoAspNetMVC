@@ -2,17 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PaginacaoAspNetMVC.Data;
 using PaginacaoAspNetMVC.Models;
+using X.PagedList.EF;
+
 
 namespace PaginacaoAspNetMVC.Controllers
 {
     public class CategoriasController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private const int tamanhoPagina = 3;
 
         public CategoriasController(ApplicationDbContext context)
         {
@@ -20,9 +24,21 @@ namespace PaginacaoAspNetMVC.Controllers
         }
 
         // GET: Categorias
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pagina)
         {
-            return View(await _context.Categorias.ToListAsync());
+            if (pagina < 1)
+            {
+                return NotFound();
+            }
+
+            var categorias = await _context.Categorias.ToPagedListAsync(pagina ?? 1, tamanhoPagina);
+
+            if (categorias.PageNumber != 1 && pagina > categorias.PageCount)
+            {
+                return NotFound();
+            }
+
+            return View(categorias);
         }
 
         // GET: Categorias/Details/5

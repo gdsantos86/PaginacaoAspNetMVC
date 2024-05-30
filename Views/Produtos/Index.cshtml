@@ -1,4 +1,7 @@
-﻿@model IEnumerable<PaginacaoAspNetMVC.Models.Produto>
+﻿@model X.PagedList.IPagedList<PaginacaoAspNetMVC.Models.Produto>
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Mvc.Core.Fluent;
+
 
 @{
     ViewData["Title"] = "Index";
@@ -13,13 +16,13 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Nome)
+                @Html.DisplayNameFor(model => model.GetEnumerator().Current.Nome)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Preco)
+                @Html.DisplayNameFor(model => model.GetEnumerator().Current.Preco)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Categoria)
+                @Html.DisplayNameFor(model => model.GetEnumerator().Current.Categoria)
             </th>
             <th></th>
         </tr>
@@ -34,7 +37,7 @@
                 @Html.DisplayFor(modelItem => item.Preco)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Categoria.CategoriaId)
+                @Html.DisplayFor(modelItem => item.Categoria.Nome)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ProdutoId">Edit</a> |
@@ -45,3 +48,38 @@
 }
     </tbody>
 </table>
+
+@*Paginação de dados*@
+<table>
+    <tr>
+        <td>
+            @(Html.Pager(Model)
+                .Url(pagina => Url.Action("Index", new { pagina }))
+                .DisplayLinkToFirstPage(PagedListDisplayMode.IfNeeded)
+                .DisplayLinkToLastPage(PagedListDisplayMode.IfNeeded)
+                .DisplayLinkToPreviousPage()
+                .DisplayLinkToNextPage()
+                .MaximumPageNumbersToDisplay(4)
+                .Build()
+                )
+        </td>
+        <td>
+            @if (Model.HasPreviousPage)
+            {
+                @if (Model.HasNextPage)
+                {
+                    <span>Mostrando os itens @((Model.PageNumber - 1) * Model.PageSize + 1) a @(Model.PageNumber * Model.PageSize) de @Model.TotalItemCount.</span>
+                }
+                else
+                {
+                    <span>Mostrando os itens @((Model.PageNumber - 1) * Model.PageSize + 1) a @Model.TotalItemCount de @Model.TotalItemCount.</span>
+                }
+            }
+            else
+            {
+                <span>Mostrando os itens 1 a @Math.Min(Model.PageSize, Model.TotalItemCount) de @Model.TotalItemCount.</span>
+            }
+        </td>
+    </tr>
+</table>
+
